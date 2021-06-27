@@ -4,6 +4,8 @@ import useInterval from "@use-it/interval";
 import { HookOptions, ReturnedValue, PlayFunction, PlayOptions } from "./types";
 import { validURL } from "./utils";
 
+let SoundRef: Sound| null = null
+
 const useSound = (
   url: string,
   {
@@ -55,9 +57,11 @@ const useSound = (
     if (!validURL(url)) {
       basePath = Sound.MAIN_BUNDLE;
     }
-    const _sound = new Sound(url, basePath, () => {
+    SoundRef = new Sound(url, basePath, () => {
       if (!isCancelled) {
-        handleSetSound(_sound);
+        if(SoundRef) {
+          handleSetSound(SoundRef);
+        }
       } else {
         setLoading(false);
       }
@@ -77,8 +81,10 @@ const useSound = (
       if (!validURL(url)) {
         basePath = Sound.MAIN_BUNDLE;
       }
-      const _sound = new Sound(url, basePath, () => {
-        handleSetSound(_sound);
+      SoundRef = new Sound(url, basePath, () => {
+        if(SoundRef) {
+          handleSetSound(SoundRef);
+        }
       });
     }
   }, [url]);
@@ -88,6 +94,16 @@ const useSound = (
       sound.setVolume(volume);
     }
   }, [volume]);
+
+  useEffect(() => {
+    return () => {
+     if(SoundRef) {
+       SoundRef.stop();
+       SoundRef.release()
+       SoundRef = null
+     }
+    };
+  }, []);
 
   const play: PlayFunction = useCallback(
     (options?: PlayOptions) => {
