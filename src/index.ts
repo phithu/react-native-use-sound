@@ -117,7 +117,7 @@ const useSound = (
       sound.play(() => {
         setIsPlaying(false);
         //@ts-ignore
-        setCurrentTime(durationRef.current);
+        setCurrentTime(SoundRef?.getDuration());
       });
       setIsPlaying(true);
     },
